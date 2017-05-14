@@ -1,4 +1,4 @@
 <?php
- //include navbar
+include_once("Scripts.php");
  echo "Welcome!";
 ?>
