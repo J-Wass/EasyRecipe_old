@@ -24,7 +24,7 @@
                                     <input class="form-control" placeholder="ex) Water, Tuna, Tomatoes, etc..." id = "Ingredient1"/>
                                 </div>
                                 <div class="col-sm-4">
-                                    <input class="form-control" placeholder="ex) 2c, 12oz, 1c diced, etc..." id = "IngredientAmt1"/>
+                                    <input class="form-control" placeholder="ex) 2 cups, 12 oz, etc..." id = "Amt1"/>
                                 </div>
                                 <div class="clearfix"></div><br />
                                 <div class="col-sm-6">
@@ -35,8 +35,12 @@
                                 </div> 
                                 <br /><br />
                                 <h4>Directions</h4>
-                                <input class="form-control" placeholder="Directions" id = "Directions"/><br />
-                                <input class="form-control" placeholder="Extra Notes" name = "Notes"/><br />
+                                <ol>
+                                    <li>
+                                        <textarea class="form-control" placeholder="Directions" id = "Directions1"></textarea><br />
+                                    </li>
+                                </ol>
+                                <textarea class="form-control" placeholder="Extra Notes" name = "Notes"></textarea><br />
                                 <div class="clearfix"></div>
                                 <button class="btn btn-primary" type="button" id="bSubmit">Submit</button>
                             </form>
@@ -51,17 +55,25 @@
             var IngredientCount = 1;
 
             $("#bAddIngredient").click(function(){
-                $("#IngredientAmt" + IngredientCount++).parent("div").after(
-                    '<div class="col-sm-8"><input class="form-control" placeholder="ex) Water, Tuna, Tomatoes, etc..." id = "Ingredient' + IngredientCount +'"/></div><div class="col-sm-4"><input class="form-control" placeholder="ex) 2c, 12oz, 1c diced, etc..." id = "IngredientAmt' + IngredientCount + '"/></div>');
+                $("#Amt" + IngredientCount++).parent("div").after(
+                    '<div class="col-sm-8"><input class="form-control" placeholder="ex) Water, Tuna, Tomatoes, etc..." id = "Ingredient' + IngredientCount +'"/></div><div class="col-sm-4"><input class="form-control" placeholder="ex) 2c, 12oz, 1c diced, etc..." id = "Amt' + IngredientCount + '"/></div>');
             });
 
             $("#bRemoveIngredient").click(function(){
-                $("#IngredientAmt" + IngredientCount).parent("div").remove();
+                $("#Amt" + IngredientCount).parent("div").remove();
                 $("#Ingredient" + IngredientCount--).parent("div").remove();
             });
 
             $("#bSubmit").click(function(){
-                //set up ingredients and directions
+                //set up ingredients to properly serialize in the DB
+                var ingredients = "";
+                $("input[id^='Ingredient']").each(function(){
+                    var i = $(this).attr('id').substring(10);
+                    ingredients += $(this).val() + ',' + $('#Amt' + i).val()+'|';
+                });
+                console.log(ingredients);
+                //prepare directions
+                
                 //submit the forms
             });
         </script>
