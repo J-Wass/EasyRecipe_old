@@ -1,4 +1,4 @@
 <?php
-include_once("Scripts.php");
+include_once("Resources/Scripts.php");
  echo "Welcome!";
 ?>

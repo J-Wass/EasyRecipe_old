@@ -8,7 +8,7 @@ class MainController{
     //DB Loading Region
     function SaveRecipe($RecipeModel){
         //prepared statements prevent sql injection, strip tags prevents html injection
-        include_once("ConnectionString.php");
+        include_once("Resources/ConnectionString.php");
         $query = $db->prepare("INSERT INTO `recipes`(`RecipeName`, `RecipeAuthor`, `Directions`, `Ingredients`, `Notes`) VALUES (:name, :author, :directions, :ingredients, :notes)");
         $query->execute(['name' => strip_tags($RecipeModel->Name),
                          'author' => strip_tags($RecipeModel->Author),
@@ -19,7 +19,7 @@ class MainController{
     }
 
     function LoadAllRecipes(){
-        include_once("ConnectionString.php");
+        include_once("Resources/ConnectionString.php");
         $query = $db->prepare('SELECT * FROM `recipes`');
         $query->execute();
         $DBRecipeList = $query->fetchAll();
@@ -37,7 +37,7 @@ class MainController{
     }
 
     function LoadRecipe($id){
-        include("ConnectionString.php");
+        include("Resources/ConnectionString.php");
         $query = $db->prepare('SELECT * FROM `recipes` WHERE id = :id');
         $query->execute(['id' => strip_tags($id)]);
         $DBRecipe = $query->fetch();

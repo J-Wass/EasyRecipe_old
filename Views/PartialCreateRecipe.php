@@ -1,5 +1,5 @@
 <html>
-    <link rel=stylesheet href="../site.css" type="text/css"/>
+    <link rel=stylesheet href="../Resources/site.css" type="text/css"/>
     <body>
         <div class="container">
             <br />
@@ -30,16 +30,27 @@
                                 <div class="col-sm-6">
                                     <button type="button" id="bAddIngredient" class="btn btn-success">+ Add next ingredient</button>
                                 </div>
-                                <div class="col-sm-6">
-                                    <button style="float:right" type="button" id="bRemoveIngredient" class="btn btn-danger">- Remove last ingredient</button>
+                                <div class="col-md-offset-2 col-md-2">
+                                    <button type="button" id="bRemoveIngredient" class="btn btn-danger">- Remove last ingredient</button>
                                 </div> 
                                 <br /><br />
                                 <h4>Directions</h4>
                                 <ol>
-                                    <li>
-                                        <textarea class="form-control" placeholder="Directions" id = "Directions1"></textarea><br />
+                                    <li style="list-style: none;">
+                                        <div class="input-group">
+                                            <div class="input-group-addon">Step 1</div>
+                                            <textarea class="form-control" placeholder="Steps..." id = "Direction1"></textarea><br />
+                                        </div>
                                     </li>
                                 </ol>
+                                <div class="clearfix"></div>
+                                <div class="col-sm-6">
+                                    <button type="button" id="bAddDirection" class="btn btn-success">+ Add another step</button>
+                                </div>
+                                <div class="col-md-offset-2 col-md-2">
+                                    <button type="button" id="bRemoveDirection" class="btn btn-danger">- Remove last step</button>
+                                </div> 
+                                <br /><br /><hr />
                                 <textarea class="form-control" placeholder="Extra Notes" name = "Notes"></textarea><br />
                                 <div class="clearfix"></div>
                                 <button class="btn btn-primary" type="button" id="bSubmit">Submit</button>
@@ -52,11 +63,21 @@
     </body>
     <footer>
         <script>
-            var IngredientCount = 1;
+            var DirectionCount = 1;
+            $("#bAddDirection").click(function(){
+                $("#Direction" + DirectionCount++).parent("div").parent("li").after(
+                    '<li style="list-style: none;"><div class="input-group"><div class="input-group-addon">Step '+ DirectionCount +'</div><textarea class="form-control" placeholder="Steps..." id = "Direction'+ DirectionCount +'"></textarea><br /></div></li>'
+                )
+            });
 
+            $("#bRemoveDirection").click(function(){
+                $("#Direction" + DirectionCount--).parent("div").parent("li").remove();
+            });
+
+            var IngredientCount = 1;
             $("#bAddIngredient").click(function(){
                 $("#Amt" + IngredientCount++).parent("div").after(
-                    '<div class="col-sm-8"><input class="form-control" placeholder="ex) Water, Tuna, Tomatoes, etc..." id = "Ingredient' + IngredientCount +'"/></div><div class="col-sm-4"><input class="form-control" placeholder="ex) 2c, 12oz, 1c diced, etc..." id = "Amt' + IngredientCount + '"/></div>');
+                    '<br /><div class="col-sm-8"><input class="form-control" placeholder="ex) Water, Tuna, Tomatoes, etc..." id = "Ingredient' + IngredientCount +'"/></div><div class="col-sm-4"><input class="form-control" placeholder="ex) 2c, 12oz, 1c diced, etc..." id = "Amt' + IngredientCount + '"/></div>');
             });
 
             $("#bRemoveIngredient").click(function(){
@@ -71,10 +92,18 @@
                     var i = $(this).attr('id').substring(10);
                     ingredients += $(this).val() + ',' + $('#Amt' + i).val()+'|';
                 });
-                console.log(ingredients);
-                //prepare directions
+                $('<input>').attr('type','hidden').attr('name','ingredients').val(ingredients).appendTo('form');
                 
-                //submit the forms
+
+                var directions = "";
+                $("textarea[id^='Direction']").each(function(){
+                    directions += $(this).val() + "|";
+                });
+                $('<input>').attr('type','hidden').attr('name','directions').val(directions).appendTo('form');
+
+                console.log(directions);
+                console.log(ingredients);
+                //submit the form
             });
         </script>
     </footer>
