@@ -1,14 +1,17 @@
 <?php
 include_once("Models/RecipeModel.php");
-class MainController{
+class MainController
+{
 
-    function __construct(){
+    function __construct()
+    {
     }
 
     //DB Loading Region
-    function SaveRecipe($RecipeModel){
+    function SaveRecipe($RecipeModel)
+    {
         //prepared statements prevent sql injection, strip tags prevents html injection
-        include_once("Resources/ConnectionString.php");
+        include("Resources/ConnectionString.php");
         $query = $db->prepare("INSERT INTO `recipes`(`RecipeName`, `RecipeAuthor`, `Directions`, `Ingredients`, `Notes`) VALUES (:name, :author, :directions, :ingredients, :notes)");
         $query->execute(['name' => strip_tags($RecipeModel->Name),
                          'author' => strip_tags($RecipeModel->Author),
@@ -18,14 +21,15 @@ class MainController{
         return $db->lastInsertId();
     }
 
-    function LoadAllRecipes(){
-        include_once("Resources/ConnectionString.php");
+    function LoadAllRecipes()
+    {
+        include("Resources/ConnectionString.php");
         $query = $db->prepare('SELECT * FROM `recipes`');
         $query->execute();
         $DBRecipeList = $query->fetchAll();
         $RecipeModelList = array();
         $i = 0;
-        foreach($DBRecipeList as $recipe){
+        foreach ($DBRecipeList as $recipe) {
             $RecipeModelList[$i++] = new RecipeModel($recipe["Id"],
                                                    $recipe["RecipeName"],
                                                    $recipe["RecipeAuthor"],
@@ -36,7 +40,8 @@ class MainController{
         return $RecipeModelList;
     }
 
-    function LoadRecipe($id){
+    function LoadRecipe($id)
+    {
         include("Resources/ConnectionString.php");
         $query = $db->prepare('SELECT * FROM `recipes` WHERE id = :id');
         $query->execute(['id' => strip_tags($id)]);
@@ -51,32 +56,40 @@ class MainController{
     }
     //End DB Loading Region
 
-    function CreateRecipe(){
-        if(isset($_POST['RecipeName'])){
-            //save model and present the finished recipe
+    function CreateRecipe()
+    {
+        include_once("Views/PartialCreateRecipe.php");
+    }
+
+    function Recipe($id = -1)
+    {
+        if (isset($_POST['RecipeName']) && isset($_POST['RecipeAuthor'])
+           && isset($_POST['Ingredients'])&& isset($_POST['Directions'])
+           && isset($_POST['Notes'])) {
             $RecipeModel = new RecipeModel(-1,
                                            $_POST['RecipeName'],
                                            $_POST['RecipeAuthor'],
                                            $_POST['Ingredients'],
                                            $_POST['Directions'],
                                            $_POST['Notes']);
+            //save model to db
             $id = $this->SaveRecipe($RecipeModel);
+
+            //display
             $this->Recipe($id);
-        }
-        else{
-            //bring user to create recipe page
-            include 'Views/PartialCreateRecipe.php';
+        } else {
+            if ($id == -1) {
+                include_once("View/PartialCreateRecipe.php");
+            } else {
+                $Recipe = $this->LoadRecipe($id);
+                include_once("Views/PartialRecipe.php");
+            }
         }
     }
 
-    function Recipe($id){
-        $Recipe = $this->LoadRecipe($id);
-        include 'Views/PartialRecipe.php';
-    }
-
-    function ListRecipes(){
+    function ListRecipes()
+    {
         $RecipeList = $this->LoadAllRecipes();
-        include 'Views/PartialShowAllRecipes.php';
+        include_once("Views/PartialShowAllRecipes.php");
     }
 }
-?>
