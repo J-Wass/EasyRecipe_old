@@ -8,6 +8,29 @@ class AuthController
     }
 
     //DB Loading Region
+    function IsVerifiedUser($UserModel)
+    {
+        $salt = strip_tags($UserModel->Salt);
+        $pepper = strip_tags($UserModel->UserName);
+        $pass = strip_tags($UserModel->Password) . $pepper;
+        $options = [
+             'cost' => 13,
+             'salt' => $salt,
+        ];
+        $hashedPass = password_hash($pass, PASSWORD_DEFAULT, $options);
+        include("Resources/ConnectionString.php");
+        $query = $db->prepare('SELECT `Password` FROM `users` WHERE `Id` LIKE :id');
+        $query->execute(['id' => strip_tags($UserModel->Id)]);
+        $DBUser = $query->fetch();
+        if ($DBUser == null) {
+            return false;
+        }
+        if ($DBUser['Password'] == $hashedPass) {
+            return true;
+        }
+        return false;
+    }
+
     function SaveUser($UserModel)
     {
         include("Resources/ConnectionString.php");
@@ -29,7 +52,24 @@ class AuthController
         return $db->lastInsertId();
     }
 
-    function LoadUser($id)
+    function LoadUserByUsername($Username, $Password)
+    {
+        include("Resources/ConnectionString.php");
+        $query = $db->prepare('SELECT * FROM `users` WHERE `Username` LIKE :user');
+        $query->execute(['user' => strip_tags($Username)]);
+        $DBUser = $query->fetch();
+        if ($DBUser == null) {
+            return null;
+        }
+        $Model = new UserModel($DBUser["Id"],
+                                 $Username,
+                                 $Password,
+                                 $DBUser["Salt"],
+                                 null);
+        return $Model;
+    }
+
+    function LoadUserById($id)
     {
         include("Resources/ConnectionString.php");
         $query = $db->prepare('SELECT * FROM `users` WHERE id = :id');
@@ -46,6 +86,7 @@ class AuthController
 
     function Login()
     {
+        //from signup page
         if (isset($_POST['Username']) && isset($_POST['Password'])
            && isset($_POST['Email'])) {
             $UserModel = new UserModel(-1,
@@ -60,7 +101,27 @@ class AuthController
             //display
             $this->User($id);
         } else {
-            include_once("Auth/PartialLogin.php");
+            //from login page
+            if (isset($_POST['Username']) && isset($_POST['Password'])) {
+                $Model = $this->LoadUserByUsername($_POST['Username'], $_POST['Password']);
+                if ($Model == null) {
+                    //could not find username
+                    $ErrorMessage = "Could not find user " . $_POST['Username'];
+                    include_once("Auth/PartialLogin.php");
+                    return;
+                }
+                if ($this->IsVerifiedUser($Model)) {
+                    //create logged in session
+                    $_GET["id"] = $Model->Id;
+                    include_once("User.php");
+                } else {
+                    //password was wrong
+                    $ErrorMessage = "Incorrect password for " . $_POST['Username'];
+                    include_once("Auth/PartialLogin.php");
+                }
+            } else {
+                include_once("Auth/PartialLogin.php");
+            }
         }
     }
 
@@ -69,7 +130,7 @@ class AuthController
         if ($id == null) {
             return Signup();
         } else {
-            $UserModel = $this->LoadUser($id);
+            $UserModel = $this->LoadUserById($id);
             include_once("Auth/PartialUser.php");
         }
     }
