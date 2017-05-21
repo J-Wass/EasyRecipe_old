@@ -44,12 +44,18 @@ class AuthController
         $pass = strip_tags($UserModel->Password) . $pepper;//pepper the password
         $hashedPass = password_hash($pass, PASSWORD_DEFAULT, $options);//bcrypt with salt and pepper
 
-        $query = $db->prepare("INSERT INTO `users`(`Username`, `Password`, `Salt`, `Email`) VALUES (:user, :pass, :salt, :email)");
-        $query->execute(['user' => strip_tags($UserModel->UserName),
+        try {
+            $query = $db->prepare("INSERT INTO `users`(`Username`, `Password`, `Salt`, `Email`) VALUES (:user, :pass, :salt, :email)");
+            $query->execute(['user' => strip_tags($UserModel->UserName),
                          'pass' => $hashedPass,
                          'salt' => $salt,
                          'email' => strip_tags($UserModel->Email)]);
-        return $db->lastInsertId();
+            return $db->lastInsertId();
+        } catch (PDOException $e) {
+            if ($e->getCode() == 1062) {
+                return null;
+            }
+        }
     }
 
     function LoadUserByUsername($Username, $Password)
@@ -97,6 +103,11 @@ class AuthController
                                       );
             //save model to db
             $id = $this->SaveUser($UserModel);
+            if ($id == null) {
+                $ErrorMessage = "User already exists: " . $_POST['Username'];
+                include_once("Auth/PartialSignup.php");
+                return;
+            }
 
             //display
             $this->User($id);

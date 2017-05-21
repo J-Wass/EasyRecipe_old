@@ -15,3 +15,12 @@ hr {
 li {
     margin-left: -25px;
 }
+
+input[type=password]{
+    border-right: 0;
+}
+
+#pass-peek{
+    border-left:0;
+    background: inherit;   
+}

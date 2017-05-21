@@ -15,7 +15,7 @@
                     </div>
                     <div class="panel-body">
                         <?php
-                        if(isset($ErrorMessage) && $ErrorMessage != null){
+                        if (isset($ErrorMessage) && $ErrorMessage != null) {
                             echo '<div class="alert alert-danger">' . $ErrorMessage . '</div>';
                         }
                         ?>
@@ -23,10 +23,9 @@
                                 <div class="col-sm-6">
                                     <h4>Username</h4>
                                     <?php
-                                    if(isset($_POST['Username'])){
+                                    if (isset($_POST['Username'])) {
                                         echo '<input class="form-control" placeholder="Username" name="Username" value="' . $_POST['Username'] .'" />';
-                                    }
-                                    else{
+                                    } else {
                                         echo '<input class="form-control" placeholder="Username" name="Username" />';
                                     }
                                     ?>
@@ -34,11 +33,12 @@
                                         <input class="form-control" type="password" placeholder="Password" name="Password" />
                                 </div>
                                 <div class="col-sm-6">
+                                <br />
                                     <div class="well">
-                                        <h2>
+                                        <h3>
                                             Need to create an account?<br/>
-                                            <a href="../Signup.php">Signup now!</a>
-                                        </h2>
+                                            <small><a href="../Signup.php">Signup now!</a></small>
+                                        </h3>
                                     </div>
                                 </div>
                                 <div class="clearfix"></div>
